@@ -35,6 +35,7 @@
     </style>
 </head>
 <body>
+    <br>
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-4">
@@ -77,6 +78,13 @@
                 </table>
             </div>
             <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-2"><p>RVN to USD </p></div>
+                    <div class="col-sm-3"><input id="rvnInputExchange" onchange="convertRVNtoUSD()"></div>
+                    <div class="col-sm-1"><p id="rvntousd">$0</p></div>
+                </div>
+                
+                <br>
                 <p>Payments:</p>
                 <table style="overflow: hidden;">
                     <thead>
@@ -114,7 +122,7 @@
     var lastTotal = 0
     var limit = 200
     var count = limit
-    var noti = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Ready.wav');
+    var noti = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Ready.mp3');
     var soundOn = false
     var nextPayout = document.getElementById("nextPayout")
 
@@ -135,6 +143,19 @@
 
     var lastPayments = null;
     var lastEarnings = null;
+
+    var btcPrice = 0
+    var btcUSDPrice = 0
+
+    var rvnInputExchange = document.getElementById("rvnInputExchange")
+
+    function convertRVNtoUSD(){
+        var amount = 0 
+        if (parseFloat(rvnInputExchange.value)) {
+            amount = parseFloat(rvnInputExchange.value)
+        }
+        document.getElementById("rvntousd").innerHTML = "$"+(amount * btcPrice * btcUSDPrice)
+    }
 
     function setUpdateTime(){
         if (parseInt(settedUpdateTime.value,10)){
@@ -293,8 +314,8 @@
                     .then(response => response.json())
                     .then(data => {
 
-                        var btcPrice = data.coin.priceBTC
-                        var btcUSDPrice = data.coin.btcUSDPrice
+                        btcPrice = data.coin.priceBTC
+                        btcUSDPrice = data.coin.btcUSDPrice
 
                         nextPayout.innerHTML = "Next payout: " + timeConverter(data.coin.nextPayout)
 
@@ -365,4 +386,3 @@
 </script>
 
 </html>
-
