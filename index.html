@@ -152,6 +152,16 @@
     var btcUSDPrice = 0
 
     var rvnInputExchange = document.getElementById("rvnInputExchange")
+    
+
+    var url_string = window.location.href
+    var url = new URL(url_string);
+    var c = url.searchParams.get("a");
+    console.log(c);
+    if (c && c.length >= 20) {
+        document.getElementById("addressSearch").value = c
+    }
+
     var currentAddress = document.getElementById("addressSearch").value
 
     function convertRVNtoUSD(){
@@ -408,4 +418,3 @@
 </script>
 
 </html>
-
