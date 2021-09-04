@@ -208,16 +208,10 @@
     }
 
     function hourConverter(UNIX_timestamp){
-        var a = new Date(UNIX_timestamp * 1000);
-        var hour = a.getHours();
-        var min = a.getMinutes();
-        if (hour < 10){
-            hour = "0"+hour
-        }
-        if (min < 10){
-            min = "0"+min
-        }
-        return hour + ':' + min;
+        var s = UNIX_timestamp
+        var h = Math.floor(s / 3600);
+        var m = Math.floor(s % 3600 / 60);
+        return h + 'h:' + m + "m";
     }
 
     function timeConverter(UNIX_timestamp){
@@ -327,7 +321,7 @@
                         btcPrice = data.coin.priceBTC
                         btcUSDPrice = data.coin.btcUSDPrice
 
-                        nextPayout.innerHTML = "Next payout: " + timeConverter(data.coin.nextPayout) + " - in " + hourConverter(ts - data.coin.nextPayout) + " min"
+                        nextPayout.innerHTML = "Next payout: " + timeConverter(data.coin.nextPayout) + " - in " + hourConverter(data.coin.nextPayout - ts)
 
                         clearedU = roundToTwo( btcPrice * clearedT * btcUSDPrice)
                         PendingU = roundToTwo( btcPrice * PendingT * btcUSDPrice)
