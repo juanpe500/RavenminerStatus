@@ -128,7 +128,7 @@
 </body>
 <script>
     var noti = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Ready.wav');
-
+    var notiCleared = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Cleared.wav');
     var resp    = document.getElementById("response")
     var total   = document.getElementById("total")
     var cleared = document.getElementById("cleared")
@@ -159,6 +159,7 @@
     var lastPayments = null;
     var lastEarnings = null;
     var lastTotal = 0
+    var lastCleared = 0
     var limit = 200
     var clearedT = 0
     var PendingT = 0
@@ -318,12 +319,22 @@
                     payout.innerHTML = "Payout: "+roundToTwo(clearedT)+"/"+ roundToTwo(PYORVN)+" RVN - $"+roundToTwo(PYOUSD)
 
                     var newtotal = roundToTwo(data.balance.cleared + data.balance.pending)
+
                     if (newtotal != lastTotal) {
                         if (soundOn == true) {
                             noti.play();
                         }
                     }
+
+                    if (lastCleared != data.balance.cleared) {
+                        if (soundOn == true) {
+                            notiCleared.play();
+                        }
+                    }
+
                     lastTotal = newtotal
+                    lastCleared = data.balance.cleared
+
 
                     lastPayments = data.payouts
                     lastEarnings = data.earningsPPLNS
@@ -385,7 +396,7 @@
 
                         total.innerHTML = "Total: " + TT + " RVN - $" + TU
 
-                        title.innerHTML = "RVN - $"+TU+"/$"+ roundToTwo(PYORVN * btcPrice * btcUSDPrice) + " - Pay in " + hourConverter(data.coin.nextPayout-ts)
+                        title.innerHTML = "$"+clearedU+"/$"+ roundToTwo(PYORVN * btcPrice * btcUSDPrice) + " - Pay in " + hourConverter(data.coin.nextPayout-ts)
 
                         cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
                         pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
