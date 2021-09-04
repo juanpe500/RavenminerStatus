@@ -63,6 +63,10 @@
                 <br>
                 <button onclick="forceupdate()">Force Update</button>
                 <br><br>
+
+                <p>Blocks in last hour: <span id="blocks"></span></p>
+
+                <br><br>
                 <p>Season Earnings:</p>
                 <table id="earningTable" style="overflow: hidden;">
                     <thead>
@@ -119,6 +123,8 @@
     var BockResponse = document.getElementById("BockResponse")
     var payments = document.getElementById("payments")
     var earnings = document.getElementById("earnings")
+    var blocks = document.getElementById("blocks")
+
     var lastTotal = 0
     var limit = 200
     var count = limit
@@ -353,6 +359,10 @@
 
                         var totalPaymentsRVN = 0
 
+                        var ts = Math.floor(Date.now() / 1000) - 3600
+
+                        var BlocksInLastHour = 0
+
                         earnings.innerHTML = ""
                         for (let i = lastEarnings.length-1; i >= 0 ; i--) {
                             ConfirmationColor = "#00ff00"
@@ -362,12 +372,15 @@
                             earnings.innerHTML = earnings.innerHTML + "<tr><td>"+ lastEarnings[i].amount.toFixed(4)+"</td><td>$"+roundToTwo(lastEarnings[i].amount * btcPrice * btcUSDPrice) +"</td><td>"+ timeConverter(lastEarnings[i].time) +"</td><td style='color:"+ConfirmationColor+"'>"+ (lastEarnings[i].confirmations || 0) +"</td></tr>"
                             totalPaymentsRVN = totalPaymentsRVN + parseFloat(lastEarnings[i].amount)
                          
+                            if (lastEarnings[i].time >= ts) {
+                                BlocksInLastHour = BlocksInLastHour + 1
+                            }
                         }
                     
                         document.getElementById("EarningsRVNTitle").innerHTML = "RVN "+ roundToTwo(totalPaymentsRVN)
                         document.getElementById("EarningsUSDTitle").innerHTML = "USD $"+ roundToTwo(totalPaymentsRVN * btcPrice * btcUSDPrice)
 
-                        
+                        blocks.innerHTML = BlocksInLastHour
                     })
                     .catch(console.error);
                 })
