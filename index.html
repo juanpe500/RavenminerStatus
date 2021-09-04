@@ -127,68 +127,63 @@
     </div>   
 </body>
 <script>
-    var resp = document.getElementById("response")
-    var total = document.getElementById("total")
+    var noti = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Ready.wav');
+
+    var resp    = document.getElementById("response")
+    var total   = document.getElementById("total")
     var cleared = document.getElementById("cleared")
     var pending = document.getElementById("pending")
-    var update = document.getElementById("update")
-    var notBut = document.getElementById("notBut")
+    var update  = document.getElementById("update")
+    var notBut  = document.getElementById("notBut")
     var settedUpdateTime = document.getElementById("settedUpdateTime")
-    var payout = document.getElementById("payout")
-    var payments = document.getElementById("payments")
-    var last24 = document.getElementById("last24")
-    var last7 = document.getElementById("last7")
-    var last14 = document.getElementById("last14")
-    var last30 = document.getElementById("last30")
+    var payout      = document.getElementById("payout")
+    var payments    = document.getElementById("payments")
+    var last24      = document.getElementById("last24")
+    var last7       = document.getElementById("last7")
+    var last14      = document.getElementById("last14")
+    var last30      = document.getElementById("last30")
     var BockResponse = document.getElementById("BockResponse")
     var payments = document.getElementById("payments")
     var earnings = document.getElementById("earnings")
-    var blocks = document.getElementById("blocks")
+    var blocks   = document.getElementById("blocks")
     var EstimatedNextPayout = document.getElementById("EstimatedNextPayout")
-    var title = document.getElementById("title")
+    var title        = document.getElementById("title")
     var workersTable = document.getElementById("workersTable")
-    var workers = document.getElementById("workers")
+    var workers      = document.getElementById("workers")
+    var nextPayout   = document.getElementById("nextPayout")
+    var rvnInputExchange = document.getElementById("rvnInputExchange")
+    var addressSearch = document.getElementById("addressSearch")
+    
 
+    var soundOn = false
+    var lastPayments = null;
+    var lastEarnings = null;
     var lastTotal = 0
     var limit = 200
-    var count = limit
-    var noti = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Ready.wav');
-    var soundOn = false
-    var nextPayout = document.getElementById("nextPayout")
-
     var clearedT = 0
     var PendingT = 0
     var TT = 0
-
     var clearedU = 0
     var PendingU = 0
     var TU = 0
     var PYOUSD = 0
     var PYORVN = 0
-
     var l1 = 0
     var l7 = 0
     var l14 = 0
     var l30 = 0
-
-    var lastPayments = null;
-    var lastEarnings = null;
-
     var btcPrice = 0
     var btcUSDPrice = 0
-
-    var rvnInputExchange = document.getElementById("rvnInputExchange")
-    
+    var count = limit
 
     var url_string = window.location.href
     var url = new URL(url_string);
     var c = url.searchParams.get("a");
-    console.log(c);
     if (c && c.length >= 20) {
-        document.getElementById("addressSearch").value = c
+        addressSearch.value = c
     }
 
-    var currentAddress = document.getElementById("addressSearch").value
+    var currentAddress = addressSearch.value
 
     function convertRVNtoUSD(){
         var amount = 0 
@@ -227,8 +222,6 @@
     }
     
     function setNewAddress(){
-        // currentAddress = document.getElementById("addressSearch").value
-        // count = limit
         window.open('https://juanpe500.github.io/RavenminerStatus/index.html?a='+document.getElementById("addressSearch").value)
     }
 
@@ -392,7 +385,7 @@
 
                         total.innerHTML = "Total: " + TT + " RVN - $" + TU
 
-                        title.innerHTML = "Mining Stats - $"+TU
+                        title.innerHTML = "RVN - $"+TU+"/$"+ roundToTwo(PYORVN * btcPrice * btcUSDPrice) + " - Pay in " + hourConverter(data.coin.nextPayout-ts)
 
                         cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
                         pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
