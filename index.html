@@ -1,1 +1,368 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Stats</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body{
+            background-color: black;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        p{
+            color: #00ff00;
+            padding: 0;
+            margin: 0;
+        }
+        button{
+            background-color: black;
+            color: #00ff00;
+            border-color: #00ff00;
+        }
+        input{
+            background-color: black;
+            color: #00ff00;
+        }
+        td{
+            color: #00ff00;
+            padding: 5px 15px;
+        }
+        th{
+            color: #00ff00;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4">
+                <p>Rig status - By JP</p>
+
+                <br>
+                <input placeholder="Address" value="RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK" id="addressSearch"><button onclick='setNewAddress()'>Search</button>
+                <br><br><button onclick="toggNots()" id="notBut" style="border-color: #ff0000;">Enable Sounds</button>
+                <br><br>
+                <p id="payout">Payout.: 0 RVN - $0.00</p>
+                <br>
+                <p id="total">Total V: 0.00 RVN - $0.00</p>
+                <p id="cleared">Cleared: 0.00 RVN - $0.00</p>
+                <p id="pending">Pending: 0.00 RVN - $0.00</p>
+                <br>
+                <p id="nextPayout">Next payout: 0</p>
+                <br>
+                <p>Last 24h: <spam id="last24">0.00 RVN - $0.00</spam></p>
+                <p>Last 7d:  <spam id="last7" >0.00 RVN - $0.00</spam></p>
+                <p>Last 14d: <spam id="last14">0.00 RVN - $0.00</spam></p>
+                <p>Last 30d: <spam id="last30">0.00 RVN - $0.00</spam></p>
+                <br>
+                <p>Updating in <span id="update" style="color: #ffff00;">60</span></p>
+                <p>Set update time: </p><input placeholder="200" value="200" id="settedUpdateTime"><button onclick="setUpdateTime()">Set</button>
+                <br>
+                <button onclick="forceupdate()">Force Update</button>
+                <br><br>
+                <p>Season Earnings:</p>
+                <table id="earningTable" style="overflow: hidden;">
+                    <thead>
+                        <tr>
+                            <th id="EarningsRVNTitle">RVN</th>
+                            <th id="EarningsUSDTitle">USD</th>
+                            <th>Time</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="earnings">
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-sm-8">
+                <p>Payments:</p>
+                <table style="overflow: hidden;">
+                    <thead>
+                        <tr>
+                            <th id="PaymentsRVNTitle">RVN</th>
+                            <th id="PaymentsUSDTitle">USD</th>
+                            <th>Time</th>
+                            <th>Transaction</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments">
+                    </tbody>
+                </table>
+            </div>    
+        </div>  
+    </div>   
+</body>
+<script>
+    var resp = document.getElementById("response")
+    var total = document.getElementById("total")
+    var cleared = document.getElementById("cleared")
+    var pending = document.getElementById("pending")
+    var update = document.getElementById("update")
+    var notBut = document.getElementById("notBut")
+    var settedUpdateTime = document.getElementById("settedUpdateTime")
+    var payout = document.getElementById("payout")
+    var payments = document.getElementById("payments")
+    var last24 = document.getElementById("last24")
+    var last7 = document.getElementById("last7")
+    var last14 = document.getElementById("last14")
+    var last30 = document.getElementById("last30")
+    var BockResponse = document.getElementById("BockResponse")
+    var payments = document.getElementById("payments")
+    var earnings = document.getElementById("earnings")
+    var lastTotal = 0
+    var limit = 200
+    var count = limit
+    var noti = new Audio('https://raw.githubusercontent.com/juanpe500/RavenminerStatus/master/Ready.wav');
+    var soundOn = false
+    var nextPayout = document.getElementById("nextPayout")
+
+    var clearedT = 0
+    var PendingT = 0
+    var TT = 0
+
+    var clearedU = 0
+    var PendingU = 0
+    var TU = 0
+    var PYOUSD = 0
+    var PYORVN = 0
+
+    var l1 = 0
+    var l7 = 0
+    var l14 = 0
+    var l30 = 0
+
+    var lastPayments = null;
+    var lastEarnings = null;
+
+    function setUpdateTime(){
+        if (parseInt(settedUpdateTime.value,10)){
+            limit = parseInt(settedUpdateTime.value,10)
+            settedUpdateTime.value = limit
+            if (count > limit) {
+                count = limit
+            }
+        }else{
+            settedUpdateTime.value = limit
+            if (count > limit) {
+                count = limit
+            }
+        }
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function roundToTwo(num) { 
+        num = num + 0.0002
+        return parseFloat(num).toFixed(2)
+    }
+
+    function forceupdate(){
+        count = limit
+    }
+    
+    function setNewAddress(){
+        currentAddress = document.getElementById("addressSearch").value
+        count = limit
+    }
+
+    function toggNots(){
+        if (soundOn == true){
+            soundOn = false
+            notBut.innerHTML = "Enable Sounds"
+            notBut.style.borderColor = "#ff0000"
+        }else{
+            soundOn = true
+            notBut.innerHTML = "Disable Sounds"
+            notBut.style.borderColor = "#00ff00"
+        }
+    }
+
+    function timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+        if (hour < 10){
+            hour = "0"+hour
+        }
+        if (min < 10){
+            min = "0"+min
+        }
+        if (date < 10){
+            date = "0"+date
+        }
+
+        var time =  hour + ':' + min + " " + date + '/' + month  ;
+        return time;
+    }
+
+    async function SearchAddress(){
+        var address = document.getElementById("addressSearch").value
+        // RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK 34 char
+        // e18768a38b7bfcdfc50721ab931aa0d77616e4fed5d2467d111163f8bfaada54 64 char
+
+       
+
+    }
+    
+    var currentAddress = document.getElementById("addressSearch").value
+
+    async function main(){
+        while (true){
+            if (count == limit) {
+                
+                fetch("https://www.ravenminer.com/api/v1/wallet/"+currentAddress, {
+                    "headers": {
+                        "accept": "application/json, text/plain, */*",
+                        "accept-language": "en-US,en;q=0.9",
+                        "if-none-match": "W/\"3da3-19iMv98gDAJ0TgVCqafkm1n7OCs\"",
+                        "sec-fetch-dest": "empty",
+                        "sec-fetch-mode": "cors",
+                        "sec-gpc": "1"
+                    },
+                    "referrer": "https://www.ravenminer.com/wallet/"+currentAddress+"/earnings",
+                    "referrerPolicy": "strict-origin-when-cross-origin",
+                    "body": null,
+                    "method": "GET",
+                    "mode": "cors",
+                    "credentials": "include"
+                    })
+
+                .then(response => response.json())
+                .then(data => {
+
+                    clearedT = roundToTwo(data.balance.cleared)
+                    PendingT = roundToTwo(data.balance.pending)
+                    TT = roundToTwo(data.balance.cleared + data.balance.pending)
+
+                    PYORVN = data.minPayout
+                    
+                    l1 = data.earnings["1d"]
+                    l7 = data.earnings["7d"]
+                    l14 = data.earnings["14d"]
+                    l30 = data.earnings["30d"]
+
+                    last24.innerHTML = roundToTwo(l1) + " RVN - $" + roundToTwo(0)
+                    last7.innerHTML = roundToTwo(l7) + " RVN - $" + roundToTwo(0)
+                    last14.innerHTML = roundToTwo(l14) + " RVN - $" + roundToTwo(0)
+                    last30.innerHTML = roundToTwo(l30) + " RVN - $" + roundToTwo(0)
+
+                    total.innerHTML = "Total V: " + TT + " RVN - $" + TU
+
+                    cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
+                    pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
+
+                    payout.innerHTML = "Payout.: "+roundToTwo(PYORVN)+" RVN - $"+roundToTwo(PYOUSD)
+
+                    var newtotal = roundToTwo(data.balance.cleared + data.balance.pending)
+                    if (newtotal != lastTotal) {
+                        if (soundOn == true) {
+                            noti.play();
+                        }
+                    }
+                    lastTotal = newtotal
+
+
+                    lastPayments = data.payouts
+                    lastEarnings = data.earningsPPLNS
+
+                    fetch("https://www.ravenminer.com/api/v1/dashboard", {
+                        "headers": {
+                            "accept": "application/json, text/plain, */*",
+                            "accept-language": "en-US,en;q=0.9",
+                            "if-none-match": "W/\"33e-UWZVFE8IXLRS/twRT3Xkn+TwRT8\"",
+                            "sec-fetch-dest": "empty",
+                            "sec-fetch-mode": "cors",
+                            "sec-gpc": "1"
+                        },
+                        "referrer": "https://www.ravenminer.com/wallet/"+currentAddress+"/earnings",
+                        "referrerPolicy": "strict-origin-when-cross-origin",
+                        "body": null,
+                        "method": "GET",
+                        "mode": "cors",
+                        "credentials": "include"
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+
+                        var btcPrice = data.coin.priceBTC
+                        var btcUSDPrice = data.coin.btcUSDPrice
+
+                        nextPayout.innerHTML = "Next payout: " + timeConverter(data.coin.nextPayout)
+
+                        clearedU = roundToTwo( btcPrice * clearedT * btcUSDPrice)
+                        PendingU = roundToTwo( btcPrice * PendingT * btcUSDPrice)
+                        TU       = roundToTwo( btcPrice * TT * btcUSDPrice)
+
+                        total.innerHTML = "Total V: " + TT + " RVN - $" + TU
+
+                        cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
+                        pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
+
+                        PYOUSD = PYORVN * btcPrice * btcUSDPrice
+                        payout.innerHTML = "Payout.: "+roundToTwo(PYORVN)+" RVN - $" + roundToTwo(PYOUSD)
+
+                        last24.innerHTML = roundToTwo(l1) + " RVN - $" + roundToTwo(l1 * btcPrice * btcUSDPrice)
+                        last7.innerHTML = roundToTwo(l7) + " RVN - $" + roundToTwo(l7 * btcPrice * btcUSDPrice)
+                        last14.innerHTML = roundToTwo(l14) + " RVN - $" + roundToTwo(l14 * btcPrice * btcUSDPrice)
+                        last30.innerHTML = roundToTwo(l30) + " RVN - $" + roundToTwo(l30 * btcPrice * btcUSDPrice)
+                    
+
+
+                        var totalEarnedRvns = 0
+
+                        payments.innerHTML = ""
+                        for (let i = 0; i < lastPayments.length; i++) {
+                            payments.innerHTML = payments.innerHTML + "<tr><td>"+ lastPayments[i].amount.toFixed(3) +"</td><td>$"+ roundToTwo(lastPayments[i].amount * btcPrice * btcUSDPrice) +"</td><td>"+ timeConverter(lastPayments[i].time) +"</td><td>"+ lastPayments[i].tx +"</td></tr>"
+                            totalEarnedRvns = totalEarnedRvns + parseFloat(lastPayments[i].amount)
+                        }
+
+                        
+                        document.getElementById("PaymentsRVNTitle").innerHTML = "RVN "+ roundToTwo(totalEarnedRvns)
+                        document.getElementById("PaymentsUSDTitle").innerHTML = "USD $"+ roundToTwo(totalEarnedRvns * btcPrice * btcUSDPrice)
+
+
+                        var totalPaymentsRVN = 0
+
+                        earnings.innerHTML = ""
+                        for (let i = lastEarnings.length-1; i >= 0 ; i--) {
+                            ConfirmationColor = "#00ff00"
+                            if ((lastEarnings[i].confirmations || 0) <= 100) {
+                                ConfirmationColor = "#ffff00"
+                            }
+                            earnings.innerHTML = earnings.innerHTML + "<tr><td>"+ lastEarnings[i].amount.toFixed(4)+"</td><td>$"+roundToTwo(lastEarnings[i].amount * btcPrice * btcUSDPrice) +"</td><td>"+ timeConverter(lastEarnings[i].time) +"</td><td style='color:"+ConfirmationColor+"'>"+ (lastEarnings[i].confirmations || 0) +"</td></tr>"
+                            totalPaymentsRVN = totalPaymentsRVN + parseFloat(lastEarnings[i].amount)
+                         
+                        }
+                    
+                        document.getElementById("EarningsRVNTitle").innerHTML = "RVN "+ roundToTwo(totalPaymentsRVN)
+                        document.getElementById("EarningsUSDTitle").innerHTML = "USD $"+ roundToTwo(totalPaymentsRVN * btcPrice * btcUSDPrice)
+
+                        
+                    })
+                    .catch(console.error);
+                })
+                .catch(console.error);
+            }
+            count = count - 1
+            if (count<=0){
+                count = limit
+            }
+            update.innerHTML = count.toString()
+            await sleep(1000);
+        }
+    }
+
+    main()
+</script>
+
+</html>
 
