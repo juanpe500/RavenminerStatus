@@ -47,7 +47,7 @@
                 <br><br><button onclick="toggNots()" id="notBut" style="border-color: #ff0000;">Enable Sounds</button>
                 <br><br>
                 <p>Updating in <span id="update" style="color: #ffff00;">60</span></p>
-                <input placeholder="200" value="200" id="settedUpdateTime" style="width: 20%;text-align: center;"> <button onclick="setUpdateTime()">Set Update Time</button>
+                <input placeholder="200" value="200" id="settedUpdateTime" style="width: 10%;text-align: center;"> <button onclick="setUpdateTime()">Set Update Time</button>
                 <button onclick="forceupdate()">Force Update</button>
                 <br><br>
 
@@ -76,8 +76,8 @@
             </div>
             <div class="col-sm-8">
                 <div class="row">
-                    <div class="col-sm-2"><p>RVN to USD </p></div>
-                    <div class="col-sm-3"><input id="rvnInputExchange" onchange="convertRVNtoUSD()" value="1"></div>
+                    <div class="col-sm-1"><p>RVN=>USD </p></div>
+                    <div class="col-sm-1"><input style="width: 100%;" id="rvnInputExchange" onchange="convertRVNtoUSD()" value="1"></div>
                     <div class="col-sm-1"><p id="rvntousd">$0</p></div>
                 </div>
 
