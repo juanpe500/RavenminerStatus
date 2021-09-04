@@ -42,22 +42,22 @@
                 <p>Rig status - By JP</p>
 
                 <br>
-                <input placeholder="Address" value="RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK" id="addressSearch"><button onclick='setNewAddress()'>Search</button>
+                <input placeholder="Address" value="RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK" id="addressSearch" style="width: 65%;"><button onclick='setNewAddress()'>Search</button>
                 <br><br><button onclick="toggNots()" id="notBut" style="border-color: #ff0000;">Enable Sounds</button>
                 <br><br>
                 <p>Updating in <span id="update" style="color: #ffff00;">60</span></p>
-                <p>Set update time: </p><input placeholder="200" value="200" id="settedUpdateTime"><button onclick="setUpdateTime()">Set</button>
-                <br>
+                <p>Set update time: </p><input placeholder="200" value="200" id="settedUpdateTime" style="width: 15%;text-align: center;"><button onclick="setUpdateTime()">Set</button>
                 <button onclick="forceupdate()">Force Update</button>
                 <br><br>
 
                 <p id="payout">Payout.: 0 RVN - $0.00</p>
+                <p id="nextPayout">Next payout: 0</p>
+                <br>
+                <p>Blocks in last hour: <span id="blocks"></span></p>
                 <br>
                 <p id="total">Total V: 0.00 RVN - $0.00</p>
                 <p id="cleared">Cleared: 0.00 RVN - $0.00</p>
                 <p id="pending">Pending: 0.00 RVN - $0.00</p>
-                <br>
-                <p id="nextPayout">Next payout: 0</p>
                 <br>
                 <p>Last 24h: <spam id="last24">0.00 RVN - $0.00</spam></p>
                 <p>Last 7d:  <spam id="last7" >0.00 RVN - $0.00</spam></p>
@@ -65,9 +65,6 @@
                 <p>Last 30d: <spam id="last30">0.00 RVN - $0.00</spam></p>
                 <br>
 
-                <p>Blocks in last hour: <span id="blocks"></span></p>
-
-                <br>
                 <p>Season Earnings:</p>
                 <table id="earningTable" style="overflow: hidden;">
                     <thead>
@@ -85,7 +82,7 @@
             <div class="col-sm-8">
                 <div class="row">
                     <div class="col-sm-2"><p>RVN to USD </p></div>
-                    <div class="col-sm-3"><input id="rvnInputExchange" onchange="convertRVNtoUSD()"></div>
+                    <div class="col-sm-3"><input id="rvnInputExchange" onchange="convertRVNtoUSD()" value="1"></div>
                     <div class="col-sm-1"><p id="rvntousd">$0</p></div>
                 </div>
                 
@@ -155,6 +152,7 @@
     var btcUSDPrice = 0
 
     var rvnInputExchange = document.getElementById("rvnInputExchange")
+    var currentAddress = document.getElementById("addressSearch").value
 
     function convertRVNtoUSD(){
         var amount = 0 
@@ -209,6 +207,19 @@
         }
     }
 
+    function hourConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        if (hour < 10){
+            hour = "0"+hour
+        }
+        if (min < 10){
+            min = "0"+min
+        }
+        return hour + ':' + min;
+    }
+
     function timeConverter(UNIX_timestamp){
         var a = new Date(UNIX_timestamp * 1000);
         var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -231,22 +242,14 @@
         var time =  hour + ':' + min + " " + date + '/' + month  ;
         return time;
     }
-
-    async function SearchAddress(){
-        var address = document.getElementById("addressSearch").value
-        // RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK 34 char
-        // e18768a38b7bfcdfc50721ab931aa0d77616e4fed5d2467d111163f8bfaada54 64 char
-
-       
-
-    }
     
-    var currentAddress = document.getElementById("addressSearch").value
 
     async function main(){
         while (true){
             if (count == limit) {
-                
+
+                var ts = Math.floor(Date.now() / 1000) 
+
                 fetch("https://www.ravenminer.com/api/v1/wallet/"+currentAddress, {
                     "headers": {
                         "accept": "application/json, text/plain, */*",
@@ -324,7 +327,7 @@
                         btcPrice = data.coin.priceBTC
                         btcUSDPrice = data.coin.btcUSDPrice
 
-                        nextPayout.innerHTML = "Next payout: " + timeConverter(data.coin.nextPayout)
+                        nextPayout.innerHTML = "Next payout: " + timeConverter(data.coin.nextPayout) + " - in " + hourConverter(ts - data.coin.nextPayout) + " min"
 
                         clearedU = roundToTwo( btcPrice * clearedT * btcUSDPrice)
                         PendingU = roundToTwo( btcPrice * PendingT * btcUSDPrice)
@@ -360,7 +363,7 @@
 
                         var totalPaymentsRVN = 0
 
-                        var ts = Math.floor(Date.now() / 1000) - 3600
+                        
 
                         var BlocksInLastHour = 0
 
@@ -373,7 +376,7 @@
                             earnings.innerHTML = earnings.innerHTML + "<tr><td>"+ lastEarnings[i].amount.toFixed(4)+"</td><td>$"+roundToTwo(lastEarnings[i].amount * btcPrice * btcUSDPrice) +"</td><td>"+ timeConverter(lastEarnings[i].time) +"</td><td style='color:"+ConfirmationColor+"'>"+ (lastEarnings[i].confirmations || 0) +"</td></tr>"
                             totalPaymentsRVN = totalPaymentsRVN + parseFloat(lastEarnings[i].amount)
                          
-                            if (lastEarnings[i].time >= ts) {
+                            if (lastEarnings[i].time >= (ts - 3600) ) {
                                 BlocksInLastHour = BlocksInLastHour + 1
                             }
                         }
@@ -382,6 +385,17 @@
                         document.getElementById("EarningsUSDTitle").innerHTML = "USD $"+ roundToTwo(totalPaymentsRVN * btcPrice * btcUSDPrice)
 
                         blocks.innerHTML = BlocksInLastHour
+
+
+                        blockPerHourColor = "#00ff00"
+                        if (BlocksInLastHour <= 1) {
+                            blockPerHourColor = "#ff0000"
+                        }else if (BlocksInLastHour <= 3) {
+                            blockPerHourColor = "#ffff00"
+                        }
+                        blocks.style.color = blockPerHourColor
+
+                        convertRVNtoUSD()
                     })
                     .catch(console.error);
                 })
