@@ -45,6 +45,12 @@
                 <input placeholder="Address" value="RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK" id="addressSearch"><button onclick='setNewAddress()'>Search</button>
                 <br><br><button onclick="toggNots()" id="notBut" style="border-color: #ff0000;">Enable Sounds</button>
                 <br><br>
+                <p>Updating in <span id="update" style="color: #ffff00;">60</span></p>
+                <p>Set update time: </p><input placeholder="200" value="200" id="settedUpdateTime"><button onclick="setUpdateTime()">Set</button>
+                <br>
+                <button onclick="forceupdate()">Force Update</button>
+                <br>
+
                 <p id="payout">Payout.: 0 RVN - $0.00</p>
                 <br>
                 <p id="total">Total V: 0.00 RVN - $0.00</p>
@@ -58,11 +64,6 @@
                 <p>Last 14d: <spam id="last14">0.00 RVN - $0.00</spam></p>
                 <p>Last 30d: <spam id="last30">0.00 RVN - $0.00</spam></p>
                 <br>
-                <p>Updating in <span id="update" style="color: #ffff00;">60</span></p>
-                <p>Set update time: </p><input placeholder="200" value="200" id="settedUpdateTime"><button onclick="setUpdateTime()">Set</button>
-                <br>
-                <button onclick="forceupdate()">Force Update</button>
-                <br><br>
 
                 <p>Blocks in last hour: <span id="blocks"></span></p>
 
