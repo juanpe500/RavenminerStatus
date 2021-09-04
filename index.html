@@ -39,31 +39,25 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-4">
-                <p>Rig status - By JP</p>
+                <p>Rig status v1.0.0 - By JP</p>
 
                 <br>
                 <input placeholder="Address" value="RAaNZbiTAxdYRkeNZutpNZ9V99AVczmopK" id="addressSearch" style="width: 65%;"><button onclick='setNewAddress()'>Search</button>
                 <br><br><button onclick="toggNots()" id="notBut" style="border-color: #ff0000;">Enable Sounds</button>
                 <br><br>
                 <p>Updating in <span id="update" style="color: #ffff00;">60</span></p>
-                <p>Set update time: </p><input placeholder="200" value="200" id="settedUpdateTime" style="width: 15%;text-align: center;"><button onclick="setUpdateTime()">Set</button>
+                <input placeholder="200" value="200" id="settedUpdateTime" style="width: 20%;text-align: center;"> <button onclick="setUpdateTime()">Set Update Time</button>
                 <button onclick="forceupdate()">Force Update</button>
                 <br><br>
 
-                <p id="payout">Payout.: 0 RVN - $0.00</p>
-                <p id="nextPayout">Next payout: 0</p>
-                <br>
                 <p>Blocks in last hour: <span id="blocks"></span></p>
                 <br>
-                <p id="total">Total V: 0.00 RVN - $0.00</p>
-                <p id="cleared">Cleared: 0.00 RVN - $0.00</p>
-                <p id="pending">Pending: 0.00 RVN - $0.00</p>
+                <p id="payout">Payout: 0 RVN - $0.00</p>
+                <p id="EstimatedNextPayout">Estimated next payout in 0h:0m</p>
+                <p id="nextPayout">Next payout: 0</p>
+                
                 <br>
-                <p>Last 24h: <spam id="last24">0.00 RVN - $0.00</spam></p>
-                <p>Last 7d:  <spam id="last7" >0.00 RVN - $0.00</spam></p>
-                <p>Last 14d: <spam id="last14">0.00 RVN - $0.00</spam></p>
-                <p>Last 30d: <spam id="last30">0.00 RVN - $0.00</spam></p>
-                <br>
+                
 
                 <p>Season Earnings:</p>
                 <table id="earningTable" style="overflow: hidden;">
@@ -85,7 +79,34 @@
                     <div class="col-sm-3"><input id="rvnInputExchange" onchange="convertRVNtoUSD()" value="1"></div>
                     <div class="col-sm-1"><p id="rvntousd">$0</p></div>
                 </div>
-                
+
+                <br>
+                <p>Earning History</p>
+                <p>Last 24h: <spam id="last24">0.00 RVN - $0.00</spam></p>
+                <p>Last 7d:  <spam id="last7" >0.00 RVN - $0.00</spam></p>
+                <p>Last 14d: <spam id="last14">0.00 RVN - $0.00</spam></p>
+                <p>Last 30d: <spam id="last30">0.00 RVN - $0.00</spam></p>
+                <br>
+                <table id="workersTable" style="overflow: hidden;">
+                    <thead>
+                        <tr>
+                            <th>Worker</th>
+                            <th>Online</th>
+                            <th>MH/s</th>
+                            <th>Spm</th>
+                            <th>Connected</th>
+                            <th>Last Share</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workers">
+                    </tbody>
+                </table>
+                <br>
+                <p>Current MH/s: <span id="hashrate"></span></p>
+                <br>
+                <p id="total">Total V: 0.00 RVN - $0.00</p>
+                <p id="cleared">Cleared: 0.00 RVN - $0.00</p>
+                <p id="pending">Pending: 0.00 RVN - $0.00</p>
                 <br>
                 <p>Payments:</p>
                 <table style="overflow: hidden;">
@@ -122,6 +143,10 @@
     var payments = document.getElementById("payments")
     var earnings = document.getElementById("earnings")
     var blocks = document.getElementById("blocks")
+    var EstimatedNextPayout = document.getElementById("EstimatedNextPayout")
+
+    var workersTable = document.getElementById("workersTable")
+    var workers = document.getElementById("workers")
 
     var lastTotal = 0
     var limit = 200
@@ -295,7 +320,7 @@
                     cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
                     pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
 
-                    payout.innerHTML = "Payout.: "+roundToTwo(PYORVN)+" RVN - $"+roundToTwo(PYOUSD)
+                    payout.innerHTML = "Payout: "+roundToTwo(clearedT)+"/"+ roundToTwo(PYORVN)+" RVN - $"+roundToTwo(PYOUSD)
 
                     var newtotal = roundToTwo(data.balance.cleared + data.balance.pending)
                     if (newtotal != lastTotal) {
@@ -305,9 +330,35 @@
                     }
                     lastTotal = newtotal
 
-
                     lastPayments = data.payouts
                     lastEarnings = data.earningsPPLNS
+
+
+
+
+
+
+                    
+
+
+
+                    var remainingRVN = roundToTwo(PYORVN - clearedT)
+                    var HourPerRVN = (l1/24)
+                    var seconds = (remainingRVN / HourPerRVN) * 60 * 60
+                    EstimatedNextPayout.innerHTML = "Estimated next payout: "+remainingRVN+" RVN in "+hourConverter(seconds)
+
+
+                  
+                    workers.innerHTML = ""
+                    for (let i = 0; i < data.workers.list.length; i++) {
+                        workers.innerHTML = workers.innerHTML + "<tr><td>"+ data.workers.list[i].name +"</td><td>"+ data.workers.list[i].online +"</td><td>"+ (data.workers.list[i].hr5m / 1000000).toFixed(2) +"</td><td>"+ data.workers.list[i].sharesperminute +"</td><td>"+ timeConverter(data.workers.list[i].connectedTime) +"</td><td>"+ timeConverter(data.workers.list[i].lastShareTime) +"</td></tr>"
+                    }
+                    document.getElementById("hashrate").innerHTML = (data.hashrate.stats24h[data.hashrate.stats24h.length-1].hr / 1000000).toFixed(2)
+
+
+
+
+
 
                     fetch("https://www.ravenminer.com/api/v1/dashboard", {
                         "headers": {
@@ -343,7 +394,7 @@
                         pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
 
                         PYOUSD = PYORVN * btcPrice * btcUSDPrice
-                        payout.innerHTML = "Payout.: "+roundToTwo(PYORVN)+" RVN - $" + roundToTwo(PYOUSD)
+                        payout.innerHTML = "Payout: "+roundToTwo(clearedT)+"/"+ roundToTwo(PYORVN)+" RVN - $" + roundToTwo(PYOUSD)
 
                         last24.innerHTML = roundToTwo(l1) + " RVN - $" + roundToTwo(l1 * btcPrice * btcUSDPrice)
                         last7.innerHTML = roundToTwo(l7) + " RVN - $" + roundToTwo(l7 * btcPrice * btcUSDPrice)
