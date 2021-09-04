@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mining Stats</title>
+    <title id="title">Mining Stats</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="icon" type="image/png" href="https://cryptologos.cc/logos/ravencoin-rvn-logo.png">
     <style>
@@ -105,7 +105,7 @@
                 <br>
                 <p>Current MH/s: <span id="hashrate"></span></p>
                 <br>
-                <p id="total">Total V: 0.00 RVN - $0.00</p>
+                <p id="total">Total: 0.00 RVN - $0.00</p>
                 <p id="cleared">Cleared: 0.00 RVN - $0.00</p>
                 <p id="pending">Pending: 0.00 RVN - $0.00</p>
                 <br>
@@ -145,7 +145,7 @@
     var earnings = document.getElementById("earnings")
     var blocks = document.getElementById("blocks")
     var EstimatedNextPayout = document.getElementById("EstimatedNextPayout")
-
+    var title = document.getElementById("title")
     var workersTable = document.getElementById("workersTable")
     var workers = document.getElementById("workers")
 
@@ -317,7 +317,7 @@
                     last14.innerHTML = roundToTwo(l14) + " RVN - $" + roundToTwo(0)
                     last30.innerHTML = roundToTwo(l30) + " RVN - $" + roundToTwo(0)
 
-                    total.innerHTML = "Total V: " + TT + " RVN - $" + TU
+                    total.innerHTML = "Total: " + TT + " RVN - $" + TU
 
                     cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
                     pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
@@ -390,7 +390,9 @@
                         PendingU = roundToTwo( btcPrice * PendingT * btcUSDPrice)
                         TU       = roundToTwo( btcPrice * TT * btcUSDPrice)
 
-                        total.innerHTML = "Total V: " + TT + " RVN - $" + TU
+                        total.innerHTML = "Total: " + TT + " RVN - $" + TU
+
+                        title.innerHTML = "Mining Stats - $"+TU
 
                         cleared.innerHTML = "Cleared: "+ clearedT + " RVN - $" + clearedU
                         pending.innerHTML = "Pending: "+ PendingT + " RVN - $" + PendingU
